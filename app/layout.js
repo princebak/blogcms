@@ -1,17 +1,23 @@
-import "./globals.scss";
-import { Inter } from "next/font/google";
+//"use client";
+//Common Imports
+//import { useEffect, useState } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+//Custom Import
+import "./globals.scss";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "Bakil | Blog",
-  description: "Blog about web developement",
+  description: "Blog about web development",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body>
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }
