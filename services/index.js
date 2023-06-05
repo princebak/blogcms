@@ -6,7 +6,7 @@ const graphqlAPI =
 
 export const getPosts = async () => {
   const query = gql`
-    query Asset {
+    query GetPosts {
       postsConnection {
         edges {
           node {
@@ -38,9 +38,9 @@ export const getPosts = async () => {
   return result.postsConnection.edges;
 };
 
-export const GetRecentPosts = async () => {
+export const getRecentPosts = async () => {
   const query = gql`
-    query GetPostDetails(){
+    query GetRecentPosts(){
       posts(
         orderBy: createdAt_ASC
         last: 3
@@ -59,9 +59,9 @@ export const GetRecentPosts = async () => {
   return result.posts;
 };
 
-export const getSimilarPosts = async () => {
+export const getSimilarPosts = async (categories, slug) => {
   const query = gql`
-    query GetPostDetails($slug: String!, $categories: [String!]) {
+    query GetSimilarPosts($slug: String!, $categories: [String!]) {
       posts(
         where: {
           slug_not: $slug
@@ -79,7 +79,7 @@ export const getSimilarPosts = async () => {
     }
   `;
 
-  const result = await request(graphqlAPI, query);
+  const result = await request(graphqlAPI, query, { categories, slug });
   return result.posts;
 };
 
@@ -95,4 +95,47 @@ export const getCategories = async () => {
 
   const result = await request(graphqlAPI, query);
   return result.categories;
+};
+
+export const getPostDetails = async (slug) => {
+  const query = gql`
+    query GetPostDetails($slug: String!) {
+      post(where: { slug: $slug }) {
+        author {
+          bio
+          name
+          id
+          photo {
+            url
+          }
+        }
+        createdAt
+        slug
+        title
+        excerpt
+        categories {
+          name
+          slug
+        }
+        featuredImage {
+          url
+        }
+        content {
+          raw
+        }
+      }
+    }
+  `;
+
+  const result = await request(graphqlAPI, query, { slug });
+  return result.post;
+};
+
+export const submitComment = async (obj) => {
+  const result = await fetch("/api/comments", {
+    method: "POST",
+    body: JSON.stringify(obj),
+  });
+
+  return result.json();
 };
