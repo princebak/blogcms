@@ -132,10 +132,14 @@ export const getPostDetails = async (slug) => {
 };
 
 export const submitComment = async (obj) => {
+  console.log("OBJ >> ", obj);
   const result = await fetch("/api/comments", {
     method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
     body: JSON.stringify(obj),
   });
 
-  return result.json();
+  return result;
 };

@@ -2,16 +2,23 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+import { submitComment } from "@/services";
+
 export default function CommentForm({ slug }) {
   const [error, setError] = useState(false);
+  const [sending, setSending] = useState(false);
   const [localStorage, setLocalStorage] = useState(null);
-  const [showSuccesMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const commentEl = useRef();
   const nameEl = useRef();
   const emailEl = useRef();
   const storeDataEl = useRef();
 
-  const handleCommentSubmission = () => {
+  const handleClick = () => {
+    setSending(true);
+  };
+
+  const handleCommentSubmission = async () => {
     setError(false);
     const { value: comment } = commentEl.current;
     const { value: name } = nameEl.current;
@@ -26,13 +33,35 @@ export default function CommentForm({ slug }) {
     const commentObj = { name, email, comment, slug };
 
     if (storeData) {
-      localStorage.setItem("name", name);
-      localStorage.setItem("email", email);
+      window.localStorage.setItem("name", name);
+      window.localStorage.setItem("email", email);
     } else {
-      localStorage.removeItem("name", name);
-      localStorage.removeItem("email", email);
+      window.localStorage.removeItem("name", name);
+      window.localStorage.removeItem("email", email);
     }
+
+    const result = await submitComment(commentObj);
+    console.log("Client : result >> ", result);
   };
+
+  useEffect(() => {
+    const postComment = async () => {
+      if (sending) {
+        await handleCommentSubmission();
+        setSending(false);
+        setShowSuccessMessage(true);
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+        }, 3000);
+      }
+    };
+    postComment();
+  }, [sending]);
+
+  useEffect(() => {
+    nameEl.current.value = window.localStorage.getItem("name");
+    emailEl.current.value = window.localStorage.getItem("email");
+  }, []);
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-8 pb-12 mb-8">
@@ -76,14 +105,19 @@ export default function CommentForm({ slug }) {
       </div>
       {error && <p className="text-xs text-red-500">All filed are required.</p>}
       <div className="mt-8">
-        <button
-          className="transition duration-500 ease hover:bg-indigo-900 inline-block bg-pink-600 text-lg font-medium rounded-full text-white px-8 py-3"
-          type="subimt"
-          onClick={handleCommentSubmission}
-        >
-          Sumit
-        </button>
-        {showSuccesMessage && (
+        {sending ? (
+          "Sending ..."
+        ) : (
+          <button
+            className="transition duration-500 ease hover:bg-indigo-900 inline-block bg-pink-600 text-lg font-medium rounded-full text-white px-8 py-3"
+            type="submit"
+            onClick={() => handleClick()}
+          >
+            Submit
+          </button>
+        )}
+
+        {showSuccessMessage && (
           <span className="text-xl float-right font-semibold mt-3 text-green-500">
             Comment submitted for review.
           </span>
