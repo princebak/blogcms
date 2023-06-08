@@ -12,7 +12,6 @@ import {
 async function PostDetails({ params }) {
   const { slug } = params;
   const post = await getPostDetails(slug);
-  console.log("MyPost >> ", post);
 
   return (
     <div className="container mx-auto px-10 mb-8">
